@@ -13,7 +13,8 @@ load_dotenv(find_dotenv())
 
 app = Flask(__name__)
 
-CORS(app)
+CORS(app, origins=["https://fmly-landing-page-backend.herokuapp.com"])
+
 
 SWAGGER_URL = '/swagger'
 
