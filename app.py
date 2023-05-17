@@ -3,7 +3,7 @@ from flask_cors import CORS
 from dotenv import load_dotenv
 import os
 
-database_url = os.environ.get('DATABASE_URL')
+database_url = os.environ.get('CONNECTION_STRING')
 
 app = Flask(__name__)
 CORS(app)
@@ -43,9 +43,9 @@ def waitlist_item_route(id):
         return jsonify({"success": True})
 
 
-@app.route('/')
-def index():
-    return 'Hello, World!'
+# @app.route('/')
+# def index():
+#     return 'Hello, World!'
 
 
 if __name__ == '__main__':
