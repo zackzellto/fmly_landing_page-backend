@@ -3,7 +3,7 @@ from datetime import datetime
 from flask_swagger_ui import get_swaggerui_blueprint
 from pymongo import MongoClient
 from dotenv import load_dotenv, find_dotenv
-from flask_cors import CORS
+from flask_cors import CORS, cross_origin
 from datetime import datetime
 import os
 import uuid
@@ -13,7 +13,7 @@ load_dotenv(find_dotenv())
 
 app = Flask(__name__)
 
-CORS(app, origins=["https://fmly-landing-page-backend.herokuapp.com"])
+CORS(app)
 
 
 SWAGGER_URL = '/swagger'
@@ -44,6 +44,7 @@ def get_timestamp():
 
 
 @app.route('/api/waitlist', methods=['POST'])
+@cross_origin(allow_headers=["Content-Type"])
 def join_waitlist():
     form_data = {
         'id': str(uuid.uuid4()),
