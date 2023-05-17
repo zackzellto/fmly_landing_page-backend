@@ -3,7 +3,6 @@ from datetime import datetime
 from flask_swagger_ui import get_swaggerui_blueprint
 from pymongo import MongoClient
 from dotenv import load_dotenv, find_dotenv
-from pymongo.collection import Collection
 from flask_cors import CORS
 from datetime import datetime
 import os
@@ -109,3 +108,7 @@ def delete_waitlist_by_id(id):
 
 
 app.register_blueprint(SWAGGERUI_BLUEPRINT, url_prefix=SWAGGER_URL)
+
+
+if __name__ == '__main__':
+    app.run(debug=True)
