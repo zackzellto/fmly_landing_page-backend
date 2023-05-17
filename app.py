@@ -13,12 +13,11 @@ load_dotenv(find_dotenv())
 
 app = Flask(__name__)
 
-CORS(app)
-# Create the Swagger UI blueprint
-# URL for exposing Swagger UI (without trailing '/')
+CORS(app, origins=['http://localhost:3000', 'https://fmly-landing-page.herokuapp.com/'], allow_headers=[
+     "Content-Type", "Authorization", "Access-Control-Allow-Credentials"], supports_credentials=True)
+
 SWAGGER_URL = '/swagger'
 
-# URL for exposing OpenAPI spec (without trailing '/')
 API_URL = '/static/swagger.json'
 SWAGGERUI_BLUEPRINT = get_swaggerui_blueprint(
     SWAGGER_URL,
@@ -30,7 +29,7 @@ SWAGGERUI_BLUEPRINT = get_swaggerui_blueprint(
 
 DB_URL = os.environ.get("DATABASE_URL")
 
-# Create a new client and connect to the server
+
 client = MongoClient(DB_URL)
 databases = client.list_database_names()
 fmly_waitlist_db = client['Fmly_Waitlist_DB']
