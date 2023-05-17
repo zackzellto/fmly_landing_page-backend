@@ -1,116 +1,52 @@
-from flask import Flask, request, jsonify, abort
-from datetime import datetime
-from flask_swagger_ui import get_swaggerui_blueprint
-from pymongo import MongoClient
-from dotenv import load_dotenv, find_dotenv
-from flask_cors import CORS, cross_origin
-from datetime import datetime
+from flask import Flask, request, jsonify
+from flask_cors import CORS
+from dotenv import load_dotenv
 import os
-import uuid
-from bson import ObjectId
 
-load_dotenv(find_dotenv())
+database_url = os.environ.get('DATABASE_URL')
 
 app = Flask(__name__)
-
 CORS(app)
 
+load_dotenv()
 
-SWAGGER_URL = '/swagger'
-
-API_URL = '/static/swagger.json'
-SWAGGERUI_BLUEPRINT = get_swaggerui_blueprint(
-    SWAGGER_URL,
-    API_URL,
-    config={
-        'app_name': "Fmly Landing Page API"
-    }
-)
-
-DB_URL = os.environ.get("CONNECTION_STRING")
-
-client = MongoClient(DB_URL)
-databases = client.list_database_names()
-fmly_waitlist_db = client['Fmly_Waitlist_DB']
-collections = fmly_waitlist_db.list_collection_names()
-
-print(collections)
-
-email_submissions = []
+waitlist = {}
 
 
-def get_timestamp():
-    return datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+@app.route('/api/waitlist', methods=['GET', 'POST'])
+def waitlist_route():
+    if request.method == 'GET':
+        return jsonify(list(waitlist.values()))
+
+    elif request.method == 'POST':
+        new_id = max(waitlist.keys()) + 1 if waitlist else 1
+        data = request.get_json()
+        waitlist[new_id] = {'id': new_id, **data}
+        return jsonify(waitlist[new_id]), 201
 
 
-@app.route('/api/waitlist', methods=['POST'])
-@cross_origin(allow_headers=["Content-Type"])
-def join_waitlist():
-    form_data = {
-        'id': str(uuid.uuid4()),
-        'email': request.json['email'],
-        'timestamp': get_timestamp(),
-    }
-    result = fmly_waitlist_db.collections.insert_one(form_data)
-    if not result:
-        abort(400, {'error': 'Email is required'})
-    email_submissions.append(form_data)
+@app.route('/api/waitlist/<int:id>', methods=['GET', 'PUT', 'DELETE'])
+def waitlist_item_route(id):
+    if id not in waitlist:
+        return jsonify({"error": "Not found"}), 404
 
-    return jsonify({'success': True}), 201
+    if request.method == 'GET':
+        return jsonify(waitlist[id])
 
+    elif request.method == 'PUT':
+        data = request.get_json()
+        waitlist[id].update(data)
+        return jsonify(waitlist[id])
 
-@app.route('/api/waitlist', methods=['GET'])
-def get_waitlist():
-    waitlist = fmly_waitlist_db.collections.find()
-    if not waitlist:
-        abort(404, {'error': 'Waitlist not found'})
-
-    waitlist_data = []
-    for item in waitlist:
-        item['_id'] = str(item['_id'])  # Convert ObjectId to string
-        waitlist_data.append(item)
-
-    return jsonify(waitlist_data)
+    elif request.method == 'DELETE':
+        del waitlist[id]
+        return jsonify({"success": True})
 
 
-@app.route('/api/waitlist/<string:id>', methods=['GET'])
-def get_waitlist_by_id(id):
-    waitlist = fmly_waitlist_db.collections.find_one({'id': id})
-    if not waitlist:
-        abort(404, {'error': 'Waitlist entry not found'})
-    return jsonify(waitlist), 200
+@app.route('/')
+def index():
+    return 'Hello, World!'
 
 
-@app.route('/api/waitlist/<string:id>', methods=['PUT'])
-def update_waitlist_by_id(id):
-    existing_entry = fmly_waitlist_db.collections.find_one({'id': id})
-    if not existing_entry:
-        abort(404, {'error': 'Waitlist entry not found'})
-    email = request.json.get('email')
-    timestamp = get_timestamp()
-
-    update_result = fmly_waitlist_db.collections.update_one(
-        {'id': id},
-        {'$set': {'email': email, 'timestamp': timestamp}}
-    )
-    if not update_result.modified_count:
-        abort(400, {'error': 'Failed to update waitlist entry'})
-
-    updated_entry = fmly_waitlist_db.collections.find_one({'id': id})
-    return jsonify(updated_entry), 200
-
-
-@app.route('/api/waitlist/<string:id>', methods=['DELETE'])
-def delete_waitlist_by_id(id):
-    result = fmly_waitlist_db.collections.delete_one({'id': id})
-    if result.deleted_count == 0:
-        abort(404, {'error': 'Waitlist entry not found'})
-    elif result.deleted_count == 1:
-        return jsonify({'success': True}), 200
-
-
-app.register_blueprint(SWAGGERUI_BLUEPRINT, url_prefix=SWAGGER_URL)
-
-
-# if __name__ == '__main__':
-#     app.run(debug=True)
+if __name__ == '__main__':
+    app.run(debug=True)
