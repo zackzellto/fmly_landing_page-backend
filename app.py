@@ -26,7 +26,7 @@ SWAGGERUI_BLUEPRINT = get_swaggerui_blueprint(
     }
 )
 
-DB_URL = os.environ.get("MONGODB_URI")
+DB_URL = os.environ.get("CONNECTION_STRING")
 
 client = MongoClient(DB_URL)
 databases = client.list_database_names()
