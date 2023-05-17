@@ -8,6 +8,7 @@ from flask_cors import CORS
 from datetime import datetime
 import os
 import uuid
+from bson import ObjectId
 
 load_dotenv(find_dotenv())
 
@@ -62,9 +63,13 @@ def get_waitlist():
     waitlist = fmly_waitlist_db.collections.find()
     if not waitlist:
         abort(404, {'error': 'Waitlist not found'})
-    print(waitlist)
-    email_submissions.append(waitlist)
-    return jsonify(email_submissions)
+
+    waitlist_data = []
+    for item in waitlist:
+        item['_id'] = str(item['_id'])  # Convert ObjectId to string
+        waitlist_data.append(item)
+
+    return jsonify(waitlist_data)
 
 
 @app.route('/api/waitlist/<string:id>', methods=['GET'])
