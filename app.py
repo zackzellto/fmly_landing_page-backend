@@ -5,7 +5,8 @@ import os
 from pymongo import MongoClient
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=['*'], allow_headers=['Content-Type', 'application/json'],
+     methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], supports_credentials=True)
 
 load_dotenv()
 
