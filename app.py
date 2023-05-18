@@ -16,6 +16,8 @@ client = MongoClient(database_url)
 fmly_waitlist_db = client.get_database('Fmly_Waitlist_DB')
 waitlist_collection = fmly_waitlist_db.get_collection('collections')
 
+print("Connected to the database")  # Logging statement
+
 
 @app.route('/api/waitlist', methods=['GET', 'POST'])
 def waitlist_route():
@@ -61,5 +63,6 @@ def index():
     return 'Hello, World!'
 
 
-# if __name__ == '__main__':
-#     app.run(debug=True)
+if __name__ == '__main__':
+    app.run(port=int(os.environ.get('PORT', 5000)), debug=True)
+    print("Flask app is running on port 5000")  # Logging statement
