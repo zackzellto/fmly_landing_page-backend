@@ -13,7 +13,7 @@ load_dotenv(find_dotenv())
 
 app = Flask(__name__)
 
-CORS(app, origins=['https://fmly-landing-page.herokuapp.com/api/waitlist'], allow_headers=[
+CORS(app, origins=['*'], allow_headers=[
      "Content-Type", "Authorization", "Access-Control-Allow-Credentials"], supports_credentials=True)
 
 SWAGGER_URL = '/swagger'
