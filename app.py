@@ -6,8 +6,8 @@ from pymongo import MongoClient
 from bson import ObjectId
 
 app = Flask(__name__)
-CORS(app, origins=['*'], allow_headers=['Content-Type', 'application/json'],
-     methods=['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'], supports_credentials=True)
+CORS(app, resources={
+     r"/api/*": {"origins": "https://master--marvelous-crumble-c2dd84.netlify.app"}})
 
 load_dotenv()
 
@@ -61,5 +61,5 @@ def index():
     return 'Hello, World!'
 
 
-if __name__ == '__main__':
-    app.run(debug=True)
+# if __name__ == '__main__':
+#     app.run(debug=True)
