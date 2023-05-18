@@ -17,6 +17,8 @@ waitlist_collection = fmly_waitlist_db.get_collection('collections')
 
 print("Connected to the database")  # Logging statement
 
+PORT = int(os.environ.get('PORT', 5000))
+
 
 @app.route('/api/waitlist', methods=['GET', 'POST'])
 def waitlist_route():
